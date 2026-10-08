@@ -1,0 +1,6 @@
+{
+  "name": "Lucknow Dental And Implant Center",
+  "description": "Professional dental care clinic in Sector 2, Vikas Nagar, Lucknow. General dentistry, implant consultations, dental check-ups, and patient-focused treatment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
