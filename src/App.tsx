@@ -1,123 +1,117 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { TrustBar } from './components/TrustBar';
-import { About } from './components/About';
-import { Services } from './components/Services';
-import { FeaturedImplant } from './components/FeaturedImplant';
+import { GlassCategories } from './components/GlassCategories';
+import { GlassCatalogue } from './components/GlassCatalogue';
+import { FeaturedServices } from './components/FeaturedServices';
 import { WhyChooseUs } from './components/WhyChooseUs';
-import { Doctors } from './components/Doctors';
-import { Reviews } from './components/Reviews';
-import { Gallery } from './components/Gallery';
-import { AppointmentSection } from './components/AppointmentSection';
+import { DesignInspirationGallery } from './components/DesignInspirationGallery';
+import { QuotationProcess } from './components/QuotationProcess';
+import { FAQSection } from './components/FAQSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
+import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { MobileStickyCTA } from './components/MobileStickyCTA';
-import { CodeExportModal } from './components/CodeExportModal';
-import { Code2, Download } from 'lucide-react';
+import { OwnerConfigModal } from './components/OwnerConfigModal';
+import { defaultBusinessConfig, glassProducts, glassServices, galleryItems, faqs } from './data/glassData';
+import { BusinessConfig, GlassCategory } from './types';
 
-export default function App() {
-  const [codeModalOpen, setCodeModalOpen] = useState(false);
+export function App() {
+  const [business, setBusiness] = useState<BusinessConfig>(() => {
+    try {
+      const stored = localStorage.getItem('bansal_glass_config');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error('Error reading saved business config', e);
+    }
+    return defaultBusinessConfig;
+  });
 
-  const handleScrollToBooking = () => {
-    const el = document.getElementById('appointment');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+  const [selectedCategory, setSelectedCategory] = useState<GlassCategory | 'All'>('All');
+  const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
+
+  // Save to localStorage when owner updates config
+  const handleSaveConfig = (updated: BusinessConfig) => {
+    setBusiness(updated);
+    try {
+      localStorage.setItem('bansal_glass_config', JSON.stringify(updated));
+    } catch (e) {
+      console.error('Error saving business config', e);
     }
   };
 
+  // Calculate count of pending items needing owner confirmation
+  const pendingCount = Object.values(business.ownerConfirmedFields).filter((v) => !v).length;
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-teal-700 selection:text-white relative">
-      {/* HTML/CSS/JS Code Banner / Quick Access Bar */}
-      <div className="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 flex items-center justify-between border-b border-slate-800 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>ZIP Folder Ready · Complete Standalone Website (HTML, CSS, JS)</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="/lucknow-dental-clinic.zip"
-            download="lucknow-dental-clinic.zip"
-            className="text-emerald-300 hover:text-emerald-200 font-bold inline-flex items-center gap-1.5 bg-emerald-950/80 px-2.5 py-1 rounded border border-emerald-800"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download ZIP (23 KB)</span>
-          </a>
-          <span className="text-slate-600">|</span>
-          <button
-            onClick={() => setCodeModalOpen(true)}
-            className="text-teal-400 hover:text-teal-300 font-semibold inline-flex items-center gap-1 cursor-pointer"
-          >
-            <Code2 className="w-3.5 h-3.5" />
-            <span>View / Copy Code</span>
-          </button>
-          <span className="text-slate-600">|</span>
-          <a
-            href="/standalone/index.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-slate-300 hover:text-white"
-          >
-            Preview Standalone ↗
-          </a>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50 text-slate-800 antialiased flex flex-col font-sans selection:bg-slate-900 selection:text-white">
+      {/* 1. Navigation bar with the Bansal Glass logo, page links and prominent WhatsApp CTA */}
+      <Navbar
+        business={business}
+        onOpenOwnerConfig={() => setIsOwnerModalOpen(true)}
+        pendingCount={pendingCount}
+      />
 
-      {/* Sticky Top Navigation */}
-      <Navbar onOpenBooking={handleScrollToBooking} />
+      <main className="flex-1 pb-16 sm:pb-0">
+        {/* 2-6. Hero section (Headline, Supporting text, Primary & Secondary buttons, Image) */}
+        <Hero business={business} />
 
-      {/* Main Content Sections */}
-      <main className="flex-1">
-        {/* Hero Section */}
-        <Hero onOpenBooking={handleScrollToBooking} />
+        {/* 7. Glass categories with relevant images */}
+        <GlassCategories onSelectCategory={setSelectedCategory} />
 
-        {/* Trust & Credibility Metrics Bar */}
-        <TrustBar />
+        {/* Searchable Glass Catalogue with all 13 products */}
+        <GlassCatalogue
+          products={glassProducts}
+          business={business}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
 
-        {/* About Clinic */}
-        <About onOpenBooking={handleScrollToBooking} />
+        {/* 8. Featured services (12 confirmed/potential services) */}
+        <FeaturedServices services={glassServices} business={business} />
 
-        {/* Dental Services Overview */}
-        <Services onOpenBooking={handleScrollToBooking} />
+        {/* 9. Why Choose Bansal Glass */}
+        <WhyChooseUs business={business} />
 
-        {/* Featured Service: Dental Implants */}
-        <FeaturedImplant onOpenBooking={handleScrollToBooking} />
+        {/* 10. Design inspiration gallery */}
+        <DesignInspirationGallery items={galleryItems} business={business} />
 
-        {/* Why Choose Us */}
-        <WhyChooseUs onOpenBooking={handleScrollToBooking} />
+        {/* Quotation Process & Interactive Request Journey */}
+        <QuotationProcess business={business} />
 
-        {/* Doctors & Clinical Team */}
-        <Doctors onOpenBooking={handleScrollToBooking} />
+        {/* 11. Frequently asked questions */}
+        <FAQSection faqs={faqs} business={business} />
 
-        {/* Verified Google Reviews & Public Profile CTA */}
-        <Reviews />
-
-        {/* Inside Our Clinic Gallery with Lightbox */}
-        <Gallery />
-
-        {/* Direct Appointment Request Booking Form */}
-        <AppointmentSection />
-
-        {/* Location & Map Contact Section */}
-        <ContactSection onOpenBooking={handleScrollToBooking} />
+        {/* 12. Contact and final enquiry CTA */}
+        <ContactSection
+          business={business}
+          onOpenOwnerConfig={() => setIsOwnerModalOpen(true)}
+        />
       </main>
 
-      {/* Footer & Legal Modals */}
-      <Footer onOpenBooking={handleScrollToBooking} />
+      {/* 13. Professional footer */}
+      <Footer
+        business={business}
+        onOpenOwnerConfig={() => setIsOwnerModalOpen(true)}
+      />
 
-      {/* Mobile Sticky CTA Bar */}
-      <MobileStickyCTA onOpenBooking={handleScrollToBooking} />
+      {/* Floating WhatsApp button visible on all desktop pages */}
+      <FloatingWhatsApp business={business} />
 
-      {/* HTML, CSS, JS Source Code Viewer Modal */}
-      <CodeExportModal
-        isOpen={codeModalOpen}
-        onClose={() => setCodeModalOpen(false)}
+      {/* Mobile Sticky CTA with 15% viewport height cap */}
+      <MobileStickyCTA business={business} />
+
+      {/* Owner verification checklist modal */}
+      <OwnerConfigModal
+        isOpen={isOwnerModalOpen}
+        onClose={() => setIsOwnerModalOpen(false)}
+        business={business}
+        onSave={handleSaveConfig}
       />
     </div>
   );
 }
+
+export default App;

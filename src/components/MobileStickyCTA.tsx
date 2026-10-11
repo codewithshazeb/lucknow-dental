@@ -1,42 +1,36 @@
 import React from 'react';
-import { Phone, Calendar, Navigation } from 'lucide-react';
-import { CLINIC_INFO } from '../data/clinicData';
+import { MessageCircle, Phone } from 'lucide-react';
+import { BusinessConfig } from '../types';
 
 interface MobileStickyCTAProps {
-  onOpenBooking: () => void;
+  business: BusinessConfig;
 }
 
-export const MobileStickyCTA: React.FC<MobileStickyCTAProps> = ({ onOpenBooking }) => {
+export const MobileStickyCTA: React.FC<MobileStickyCTAProps> = ({ business }) => {
+  const cleanCallUrl = `tel:${business.phone.replace(/[^0-9+]/g, '')}`;
+  const cleanWhatsAppUrl = `https://wa.me/${business.whatsAppNumber}?text=${encodeURIComponent(
+    business.defaultWhatsAppMessage
+  )}`;
+
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] px-3 py-2.5 safe-area-bottom">
-      <div className="flex items-center gap-2 max-w-md mx-auto">
-        {/* Call Now button */}
+    <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 shadow-lg">
+      <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
         <a
-          href={`tel:${CLINIC_INFO.phoneDial}`}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-100 active:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors whitespace-nowrap shadow-xs"
+          href={cleanCallUrl}
+          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-semibold transition-colors truncate"
         >
-          <Phone className="w-3.5 h-3.5 text-teal-700 shrink-0" />
-          <span>Call Now</span>
+          <Phone className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+          <span className="truncate">Call Now</span>
         </a>
 
-        {/* Book Appointment button */}
-        <button
-          onClick={onOpenBooking}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 bg-teal-700 active:bg-teal-800 text-white rounded-xl text-xs font-bold transition-colors whitespace-nowrap shadow-sm cursor-pointer"
-        >
-          <Calendar className="w-3.5 h-3.5 shrink-0" />
-          <span>Book Visit</span>
-        </button>
-
-        {/* Directions icon button */}
         <a
-          href={CLINIC_INFO.googleMapsDirectionsUrl}
+          href={cleanWhatsAppUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-2.5 bg-slate-900 active:bg-slate-800 text-teal-400 rounded-xl transition-colors shrink-0 flex items-center justify-center shadow-xs"
-          aria-label="Get directions on Google Maps"
+          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition-colors truncate"
         >
-          <Navigation className="w-4 h-4" />
+          <MessageCircle className="w-3.5 h-3.5 fill-current shrink-0" />
+          <span className="truncate">WhatsApp Quote</span>
         </a>
       </div>
     </div>
